@@ -27,7 +27,55 @@ def after_request_logging(response):
     current_app.logger.info("After Request")
 
     log = logging.getLogger("myApp")
+    log.info("INFO LOGGER")
+    log = logging.getLogger("mydebug")
+    log.debug("DEBUG LOG")
+    return response
+
+
+@log_con.before_app_first_request
+def configure_logging():
+    logging.config.dictConfig(LOGGING_CONFIG)
+    log = logging.getLogger("myApp")
+    log.info("INFO LOGGER")
+    log = logging.getLogger("myDebug")
+    log.debug("DEBUG LOG")
+
+
+import logging
+from logging.config import dictConfig
+
+import flask
+from flask import request, current_app
+
+from app.logging_config.log_formatters import RequestFormatter
+
+log_con = flask.Blueprint('log_con', __name__)
+
+
+@log_con.before_app_request
+def before_request_logging():
+    current_app.logger.info("Before Request")
+    log = logging.getLogger("myApp")
     log.info("My App Logger")
+    log = logging.getLogger("myDebug")
+    log.debug("My Debug Logger Message")
+
+
+@log_con.after_app_request
+def after_request_logging(response):
+    if request.path == '/favicon.ico':
+        return response
+    elif request.path.startswith('/static'):
+        return response
+    elif request.path.startswith('/bootstrap'):
+        return response
+    current_app.logger.info("After Request")
+
+    log = logging.getLogger("myApp")
+    log.info("My App Logger")
+    log = logging.getLogger("myDebug")
+    log.debug("My Debug Logger Message")
     return response
 
 
@@ -36,10 +84,8 @@ def configure_logging():
     logging.config.dictConfig(LOGGING_CONFIG)
     log = logging.getLogger("myApp")
     log.info("My App Logger")
-    log = logging.getLogger("myerrors")
-    log.info("THis broke")
-
-
+    log = logging.getLogger("mydebug")
+    log.debug("My Debug Logger Message")
 
 
 LOGGING_CONFIG = {
@@ -52,7 +98,11 @@ LOGGING_CONFIG = {
         'RequestFormatter': {
             '()': 'app.logging_config.log_formatters.RequestFormatter',
             'format': '[%(asctime)s] [%(process)d] %(remote_addr)s requested %(url)s'
-                        '%(levelname)s in %(module)s: %(message)s'
+                      '%(levelname)s in %(module)s: %(message)s'
+        },
+        'DebugFormatter': {
+            '()': 'app.logging_config.log_formatters.RequestFormatter',
+            'format': '%(levelname)s : %(message)s'
         }
     },
     'handlers': {
@@ -62,77 +112,39 @@ LOGGING_CONFIG = {
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout',  # Default is stderr
         },
-        'file.handler': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'standard',
-            'filename': 'app/logs/flask.log',
-            'maxBytes': 10000000,
-            'backupCount': 5,
-        },
         'file.handler.myapp': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'standard',
-            'filename': 'app/logs/myapp.log',
-            'maxBytes': 10000000,
-            'backupCount': 5,
-        },
-        'file.handler.request': {
-            'class': 'logging.handlers.RotatingFileHandler',
             'formatter': 'RequestFormatter',
-            'filename': 'app/logs/request.log',
+            'filename': 'app/logs/myinfo.log',
             'maxBytes': 10000000,
             'backupCount': 5,
         },
-        'file.handler.errors': {
+        'file.handler.mydebug': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'standard',
-            'filename': 'app/logs/errors.log',
-            'maxBytes': 10000000,
-            'backupCount': 5,
-        },
-        'file.handler.sqlalchemy': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'standard',
-            'filename': 'app/logs/sqlalchemy.log',
-            'maxBytes': 10000000,
-            'backupCount': 5,
-        },
-        'file.handler.werkzeug': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'standard',
-            'filename': 'app/logs/werkzeug.log',
+            'formatter': 'DebugFormatter',
+            'filename': 'app/logs/mydebug.log',
             'maxBytes': 10000000,
             'backupCount': 5,
         },
     },
     'loggers': {
         '': {  # root logger
-            'handlers': ['default','file.handler'],
+            'handlers': ['default'],
             'level': 'DEBUG',
             'propagate': True
         },
         '__main__': {  # if __name__ == '__main__'
-            'handlers': ['default','file.handler'],
+            'handlers': ['default'],
             'level': 'DEBUG',
             'propagate': True
         },
-        'werkzeug': {  # if __name__ == '__main__'
-            'handlers': ['file.handler.werkzeug'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'sqlalchemy.engine': {  # if __name__ == '__main__'
-            'handlers': ['file.handler.sqlalchemy'],
+        'myApp': {  # if __name__ == '__main__'
+            'handlers': ['file.handler.myapp'],
             'level': 'INFO',
             'propagate': False
         },
-        'myApp': {  # if __name__ == '__main__'
-            'handlers': ['file.handler.myapp'],
-            'level': 'DEBUG',
-            'propagate': False
-        },
-        'myerrors': {  # if __name__ == '__main__'
-            'handlers': ['file.handler.errors'],
+        'myDebug': {  # if __name__ == '__main__'
+            'handlers': ['file.handler.mydebug'],
             'level': 'DEBUG',
             'propagate': False
         },
