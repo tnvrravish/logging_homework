@@ -1,11 +1,11 @@
 # Project Setup
 
-[![Production Workflow](https://github.com/tnvrravish/1s601P1_docker_flask/actions/workflows/prod.yml/badge.svg)](https://github.com/tnvrravish/1s601P1_docker_flask/actions/workflows/prod.yml)
+[![Production Workflow](https://github.com/tnvrravish/logging_homework/actions/workflows/prod.yml/badge.svg)](https://github.com/tnvrravish/logging_homework/actions/workflows/prod.yml)
 
 * [Production Deployment](https://vt-project-1-prod.herokuapp.com/)
 
 
-[![Development Workflow](https://github.com/tnvrravish/1s601P1_docker_flask/actions/workflows/dev.yml/badge.svg)](https://github.com/tnvrravish/1s601P1_docker_flask/actions/workflows/dev.yml)
+[![Development Workflow](https://github.com/tnvrravish/logging_homework/actions/workflows/dev.yml/badge.svg)](https://github.com/tnvrravish/logging_homework/actions/workflows/dev.yml)
 
 * [Developmental Deployment](https://vt-project-1-dev.herokuapp.com/)
 
